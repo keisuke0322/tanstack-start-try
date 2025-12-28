@@ -1,7 +1,5 @@
-import { Link, createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { type User, verifyAuthFn } from "../../utils/auth";
-import { getToken, removeToken } from "../../utils/jwt-client";
+import { Link, createFileRoute, notFound } from "@tanstack/react-router";
+import { useAuth } from "../../utils/useAuth";
 
 // ==========================================
 // 📝 ダミーデータ（実際はDBから取得）
@@ -232,10 +230,6 @@ export const Route = createFileRoute("/posts/$postId")({
 // 🎨 コンポーネント
 // ==========================================
 function PostDetail() {
-  const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
   // ✅ params も完全に型安全
   const { postId } = Route.useParams();
   // 型: { postId: string }
@@ -244,37 +238,11 @@ function PostDetail() {
   const post = Route.useLoaderData();
   // 型: { id: string; title: string; content: string; author: string; createdAt: string }
 
-  // ✅ useEffectでクライアントサイド認証チェック
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = getToken();
-
-      if (!token) {
-        navigate({ to: "/login", search: { redirect: `/posts/${postId}` } });
-        return;
-      }
-
-      try {
-        const result = await verifyAuthFn({ data: { token } });
-
-        if (!result.user) {
-          removeToken();
-          navigate({ to: "/login", search: { redirect: `/posts/${postId}` } });
-          return;
-        }
-
-        setUser(result.user);
-      } catch (error) {
-        console.error("認証エラー:", error);
-        removeToken();
-        navigate({ to: "/login", search: { redirect: `/posts/${postId}` } });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [navigate, postId]);
+  // ✅ useAuth フックで認証チェック（認証必須）
+  const { user, isLoading } = useAuth({
+    required: true,
+    redirectTo: `/posts/${postId}`,
+  });
 
   // ローディング中
   if (isLoading) {

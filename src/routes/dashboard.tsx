@@ -1,7 +1,5 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { type User, verifyAuthFn } from "../utils/auth";
-import { getToken, removeToken } from "../utils/jwt-client";
+import { useAuth } from "../utils/useAuth";
 
 // ==========================================
 // 🚀 ルート定義
@@ -16,43 +14,11 @@ export const Route = createFileRoute("/dashboard")({
 // ==========================================
 function DashboardPage() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // ✅ useEffectでクライアントサイド認証チェック
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = getToken();
-
-      if (!token) {
-        // トークンがない場合はログインページへ
-        navigate({ to: "/login", search: { redirect: "/dashboard" } });
-        return;
-      }
-
-      try {
-        // サーバーでトークンを検証
-        const result = await verifyAuthFn({ data: { token } });
-
-        if (!result.user) {
-          // トークンが無効な場合は削除してログインページへ
-          removeToken();
-          navigate({ to: "/login", search: { redirect: "/dashboard" } });
-          return;
-        }
-
-        setUser(result.user);
-      } catch (error) {
-        console.error("認証エラー:", error);
-        removeToken();
-        navigate({ to: "/login", search: { redirect: "/dashboard" } });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [navigate]);
+  // ✅ useAuth フックで認証チェック（認証必須）
+  const { user, isLoading, logout } = useAuth({
+    required: true,
+    redirectTo: "/dashboard",
+  });
 
   // ローディング中
   if (isLoading) {
@@ -71,8 +37,7 @@ function DashboardPage() {
   }
 
   const handleLogout = () => {
-    // localStorageからトークンを削除
-    removeToken();
+    logout();
     // ホームにリダイレクト
     navigate({ to: "/" });
   };

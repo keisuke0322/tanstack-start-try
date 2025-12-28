@@ -1,7 +1,5 @@
 import { Link, Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { type User, verifyAuthFn } from "../../utils/auth";
-import { getToken, removeToken } from "../../utils/jwt-client";
+import { useAuth } from "../../utils/useAuth";
 
 export const Route = createFileRoute("/posts")({
   // ⚠️ beforeLoadは削除（SSRではlocalStorageにアクセスできないため）
@@ -10,44 +8,11 @@ export const Route = createFileRoute("/posts")({
 
 function PostsLayout() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // ✅ useEffectでクライアントサイド認証チェック（認証必須ではない）
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = getToken();
-
-      if (!token) {
-        // トークンがない場合は未認証状態
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        // サーバーでトークンを検証
-        const result = await verifyAuthFn({ data: { token } });
-
-        if (result.user) {
-          setUser(result.user);
-        } else {
-          // トークンが無効な場合は削除
-          removeToken();
-        }
-      } catch (error) {
-        console.error("認証エラー:", error);
-        removeToken();
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
+  // ✅ useAuth フックで認証チェック（認証任意）
+  const { user, isLoading, logout } = useAuth({ required: false });
 
   const handleLogout = () => {
-    removeToken();
-    setUser(null);
+    logout();
     navigate({ to: "/posts", search: { page: 1, q: "", sort: "newest" } });
   };
 

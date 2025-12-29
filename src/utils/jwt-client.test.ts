@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { decodeTokenPayload, getToken, isTokenExpired, removeToken, setToken } from "./jwt-client";
 
+// 定数
+const ONE_HOUR_IN_SECONDS = 3600;
+
 // localStorageのモック
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -21,6 +24,20 @@ const localStorageMock = (() => {
 Object.defineProperty(globalThis, "localStorage", {
   value: localStorageMock,
 });
+
+// 共通ヘルパー関数: オブジェクトをBase64URLエンコード
+const base64UrlEncode = (obj: object): string => {
+  const str = JSON.stringify(obj);
+  return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+};
+
+// 共通ヘルパー関数: テスト用のJWTトークンを作成
+const createTestToken = (payload: object): string => {
+  const header = { alg: "HS256", typ: "JWT" };
+  const encodedHeader = base64UrlEncode(header);
+  const encodedPayload = base64UrlEncode(payload);
+  return `${encodedHeader}.${encodedPayload}.fake-signature`;
+};
 
 describe("jwt-client", () => {
   beforeEach(() => {
@@ -58,18 +75,6 @@ describe("jwt-client", () => {
   });
 
   describe("decodeTokenPayload", () => {
-    // 有効なJWTトークンを作成するヘルパー関数
-    const createValidToken = (payload: object): string => {
-      const header = { alg: "HS256", typ: "JWT" };
-      const base64UrlEncode = (obj: object): string => {
-        const str = JSON.stringify(obj);
-        return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-      };
-      const encodedHeader = base64UrlEncode(header);
-      const encodedPayload = base64UrlEncode(payload);
-      return `${encodedHeader}.${encodedPayload}.fake-signature`;
-    };
-
     it("should decode a valid JWT payload", () => {
       const payload = {
         sub: "user123",
@@ -77,7 +82,7 @@ describe("jwt-client", () => {
         email: "test@example.com",
         exp: 1735500000,
       };
-      const token = createValidToken(payload);
+      const token = createTestToken(payload);
 
       const result = decodeTokenPayload(token);
       expect(result).toEqual(payload);
@@ -85,7 +90,7 @@ describe("jwt-client", () => {
 
     it("should return null for invalid token format", () => {
       expect(decodeTokenPayload("invalid-token")).toBeNull();
-      expect(decodeTokenPayload("only.two")).toBeNull(); // 2パーツなのでnull
+      expect(decodeTokenPayload("only.two")).toBeNull(); // 2パーツなので null
       expect(decodeTokenPayload("one")).toBeNull();
       expect(decodeTokenPayload("")).toBeNull();
     });
@@ -100,7 +105,7 @@ describe("jwt-client", () => {
         sub: "123",
         exp: 9999999999,
       };
-      const token = createValidToken(payload);
+      const token = createTestToken(payload);
 
       const result = decodeTokenPayload(token);
       expect(result?.sub).toBe("123");
@@ -109,32 +114,21 @@ describe("jwt-client", () => {
   });
 
   describe("isTokenExpired", () => {
-    const createTokenWithExp = (exp: number): string => {
-      const payload = { sub: "user123", exp };
-      const base64UrlEncode = (obj: object): string => {
-        const str = JSON.stringify(obj);
-        return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-      };
-      const encodedHeader = base64UrlEncode({ alg: "HS256", typ: "JWT" });
-      const encodedPayload = base64UrlEncode(payload);
-      return `${encodedHeader}.${encodedPayload}.fake-signature`;
-    };
-
     it("should return true for null token", () => {
       expect(isTokenExpired(null)).toBe(true);
     });
 
     it("should return true for expired token", () => {
       // 過去の時刻（1時間前）
-      const expiredTime = Math.floor(Date.now() / 1000) - 3600;
-      const token = createTokenWithExp(expiredTime);
+      const expiredTime = Math.floor(Date.now() / 1000) - ONE_HOUR_IN_SECONDS;
+      const token = createTestToken({ sub: "user123", exp: expiredTime });
       expect(isTokenExpired(token)).toBe(true);
     });
 
     it("should return false for valid token", () => {
       // 未来の時刻（1時間後）
-      const futureTime = Math.floor(Date.now() / 1000) + 3600;
-      const token = createTokenWithExp(futureTime);
+      const futureTime = Math.floor(Date.now() / 1000) + ONE_HOUR_IN_SECONDS;
+      const token = createTestToken({ sub: "user123", exp: futureTime });
       expect(isTokenExpired(token)).toBe(false);
     });
 

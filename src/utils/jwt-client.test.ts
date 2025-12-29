@@ -22,6 +22,17 @@ const localStorageMock = (() => {
 vi.stubGlobal("window", { localStorage: localStorageMock });
 vi.stubGlobal("localStorage", localStorageMock);
 
+// Helper to create a base64url-encoded JWT-like structure
+const createMockToken = (payload: object) => {
+  const header = { alg: "HS256", typ: "JWT" };
+  const base64UrlEncode = (obj: object) => {
+    return btoa(JSON.stringify(obj)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  };
+  const headerPart = base64UrlEncode(header);
+  const payloadPart = base64UrlEncode(payload);
+  return `${headerPart}.${payloadPart}.signature`;
+};
+
 describe("JWT Client Utilities", () => {
   beforeEach(() => {
     localStorageMock.clear();
@@ -61,17 +72,6 @@ describe("JWT Client Utilities", () => {
   });
 
   describe("decodeTokenPayload", () => {
-    // Helper to create a base64url-encoded JWT-like structure
-    const createMockToken = (payload: object) => {
-      const header = { alg: "HS256", typ: "JWT" };
-      const base64UrlEncode = (obj: object) => {
-        return btoa(JSON.stringify(obj)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-      };
-      const headerPart = base64UrlEncode(header);
-      const payloadPart = base64UrlEncode(payload);
-      return `${headerPart}.${payloadPart}.signature`;
-    };
-
     it("should decode a valid token payload", () => {
       const payload = {
         sub: "user-123",
@@ -105,16 +105,6 @@ describe("JWT Client Utilities", () => {
   });
 
   describe("isTokenExpired", () => {
-    const createMockToken = (payload: object) => {
-      const header = { alg: "HS256", typ: "JWT" };
-      const base64UrlEncode = (obj: object) => {
-        return btoa(JSON.stringify(obj)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-      };
-      const headerPart = base64UrlEncode(header);
-      const payloadPart = base64UrlEncode(payload);
-      return `${headerPart}.${payloadPart}.signature`;
-    };
-
     it("should return true for null token", () => {
       expect(isTokenExpired(null)).toBe(true);
     });

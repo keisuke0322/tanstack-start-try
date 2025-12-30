@@ -18,8 +18,8 @@ export default defineConfig({
   // CI環境では並列数を制限
   workers: process.env.CI ? 1 : undefined,
 
-  // レポーター設定
-  reporter: process.env.CI ? "github" : "html",
+  // レポーター設定（CIではGitHub用とHTML両方を出力）
+  reporter: process.env.CI ? [["github"], ["html"]] : "html",
 
   // グローバル設定
   use: {

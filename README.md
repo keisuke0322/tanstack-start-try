@@ -1,99 +1,132 @@
-# TanStack Start Starter
+# TanStack Start サンプルアプリ
 
-A minimal starter template for [TanStack Start](https://tanstack.com/start) — the full-stack React framework powered by TanStack Router.
+[TanStack Start](https://tanstack.com/start) を使用したフルスタック React アプリケーションのサンプルです。
 
-## Tech Stack
+## 🚀 デモ機能
 
-This starter leverages cutting-edge tools with a minimal configuration:
+| ページ       | 説明                                   |
+| ------------ | -------------------------------------- |
+| `/`          | ホームページ                           |
+| `/counter`   | カウンター（状態管理のサンプル）       |
+| `/posts`     | 投稿一覧（データフェッチのサンプル）   |
+| `/posts/:id` | 投稿詳細（動的ルーティングのサンプル） |
+| `/login`     | ログインページ（認証フローのサンプル） |
+| `/dashboard` | ダッシュボード（認証必須ページ）       |
 
-| Category   | Technology                                                                             | Version   |
-| ---------- | -------------------------------------------------------------------------------------- | --------- |
-| Framework  | [TanStack Start](https://tanstack.com/start)                                           | Latest    |
-| Styling    | [Tailwind CSS](https://tailwindcss.com/)                                               | 4         |
-| Language   | [TypeScript Native](https://devblogs.microsoft.com/typescript/typescript-native-port/) | 7 Preview |
-| Build Tool | [Vite](https://vite.dev/)                                                              | 8 Beta    |
-| Linter     | [oxlint](https://oxc.rs/docs/guide/usage/linter)                                       | Latest    |
-| Formatter  | [oxfmt](https://oxc.rs/docs/guide/usage/formatter)                                     | Latest    |
-| Git Hooks  | [Lefthook](https://github.com/evilmartians/lefthook)                                   | Latest    |
-| Runtime    | [Bun](https://bun.sh/)                                                                 | Latest    |
+## 🛠️ 技術スタック
 
-## Getting Started
+| カテゴリ       | 技術                                                                                                  |
+| -------------- | ----------------------------------------------------------------------------------------------------- |
+| フレームワーク | [TanStack Start](https://tanstack.com/start)                                                          |
+| スタイリング   | [Tailwind CSS v4](https://tailwindcss.com/)                                                           |
+| 言語           | [TypeScript Native Preview](https://devblogs.microsoft.com/typescript/typescript-native-port/)        |
+| ビルド         | [Vite](https://vite.dev/)                                                                             |
+| Lint/Format    | [oxlint](https://oxc.rs/docs/guide/usage/linter) / [oxfmt](https://oxc.rs/docs/guide/usage/formatter) |
+| テスト         | [Vitest](https://vitest.dev/)（単体）/ [Playwright](https://playwright.dev/)（E2E）                   |
+| ランタイム     | [Bun](https://bun.sh/)                                                                                |
+| Git Hooks      | [Lefthook](https://github.com/evilmartians/lefthook)                                                  |
 
-### Prerequisites
+## 📦 セットアップ
 
-- [Bun](https://bun.sh/) installed on your machine
+### 必要なもの
 
-### Installation
+- [Bun](https://bun.sh/)
+
+### インストール
 
 ```bash
-# Clone the repository
+# リポジトリをクローン
 git clone https://github.com/lightsound/tanstack-start-start.git
 cd tanstack-start-start
 
-# Install dependencies (git hooks are automatically set up)
+# 依存関係をインストール（Git Hooks も自動で設定されます）
 bun install
 
-# Start development server
+# 開発サーバーを起動
 bun run dev
 ```
 
-## Scripts
+ブラウザで http://localhost:3000 を開いてください。
 
-| Command         | Description                          |
-| --------------- | ------------------------------------ |
-| `bun run dev`   | Start development server             |
-| `bun run build` | Build for production                 |
-| `bun run start` | Preview production build             |
-| `bun run check` | Run linter and formatter check       |
-| `bun run fix`   | Auto-fix lint issues and format code |
+## 📝 コマンド一覧
 
-## VS Code Configuration
+### 開発
 
-### Recommended Extension
+| コマンド        | 説明                   |
+| --------------- | ---------------------- |
+| `bun run dev`   | 開発サーバーを起動     |
+| `bun run build` | 本番用ビルド           |
+| `bun run start` | ビルド結果をプレビュー |
 
-This project recommends installing the [oxc extension](https://marketplace.visualstudio.com/items?itemName=oxc.oxc-vscode) for the best development experience.
+### コード品質
 
-### Editor Settings
+| コマンド        | 説明                     |
+| --------------- | ------------------------ |
+| `bun run check` | Lint + Format チェック   |
+| `bun run fix`   | Lint + Format の自動修正 |
+| `bun run lint`  | Lint のみ実行            |
+| `bun run fmt`   | Format チェックのみ実行  |
 
-The included `.vscode/settings.json` provides the following configurations:
+### テスト
 
-- **Format on Save**: oxfmt automatically formats your code when you save a file
-- **Read-only Files**: The following files are set to read-only to prevent accidental edits:
-  - `**/*.md` — Markdown files should be managed by AI, not edited directly
-  - `bun.lock` — Auto-generated lockfile, should not be manually modified
-  - `**/routeTree.gen.ts` — Auto-generated by TanStack Router, should not be manually modified
+| コマンド              | 説明                             |
+| --------------------- | -------------------------------- |
+| `bun run test`        | 単体テストを実行                 |
+| `bun run test:watch`  | 単体テストをウォッチモードで実行 |
+| `bun run test:e2e`    | E2E テストを実行                 |
+| `bun run test:e2e:ui` | E2E テストを UI モードで実行     |
 
-## About oxlint Configuration
+## 📁 プロジェクト構成
 
-This starter uses **minimal oxlint rules** with only the `correctness` category enabled. This catches obvious bugs without being intrusive, allowing you to customize the rules according to your project's needs.
-
-You can make the linting stricter by adding more categories to `.oxlintrc.json`:
-
-```json
-{
-  "categories": {
-    "correctness": "error",
-    "suspicious": "warn",
-    "perf": "warn"
-  }
-}
+```
+src/
+├── router.tsx          # ルーター設定
+├── routeTree.gen.ts    # 自動生成されるルートツリー（編集不可）
+├── styles.css          # グローバルスタイル
+├── data/
+│   └── posts.ts        # サンプルデータ
+├── routes/
+│   ├── __root.tsx      # ルートレイアウト
+│   ├── index.tsx       # / ページ
+│   ├── counter/        # /counter ページ
+│   ├── dashboard/      # /dashboard ページ（要認証）
+│   ├── login/          # /login ページ
+│   └── posts/          # /posts ページ群
+└── utils/
+    ├── auth.ts         # 認証ユーティリティ
+    ├── jwt.ts          # JWT 処理（サーバー）
+    ├── jwt-client.ts   # JWT 処理（クライアント）
+    └── useAuth.ts      # 認証カスタムフック
+e2e/
+├── home.spec.ts        # ホームページの E2E テスト
+├── counter.spec.ts     # カウンターの E2E テスト
+├── posts.spec.ts       # 投稿ページの E2E テスト
+├── auth.spec.ts        # 認証フローの E2E テスト
+└── 404.spec.ts         # 404 ページの E2E テスト
 ```
 
-Available categories: `correctness`, `suspicious`, `perf`, `style`, `pedantic`, `restriction`, `nursery`
+## ⚙️ VS Code 設定
 
-## Git Hooks with Lefthook
+### 推奨拡張機能
 
-This starter uses [Lefthook](https://github.com/evilmartians/lefthook) for managing git hooks:
+[oxc 拡張機能](https://marketplace.visualstudio.com/items?itemName=oxc.oxc-vscode) のインストールを推奨します。
 
-- **pre-commit**: Runs linting and format check on staged files (fast)
-- **pre-push**: Runs the full `check` script before pushing (complete)
+### エディタ設定
 
-Git hooks are automatically installed when you run `bun install`.
+`.vscode/settings.json` に以下の設定が含まれています：
 
-## Developer Tools
+- **保存時の自動フォーマット**: oxfmt がファイル保存時にコードを自動整形
+- **読み取り専用ファイル**: 以下のファイルは編集不可に設定
+  - `bun.lock` - 自動生成されるロックファイル
+  - `**/routeTree.gen.ts` - TanStack Router が自動生成
 
-In development mode, this starter includes [TanStack Router DevTools](https://tanstack.com/router/latest/docs/framework/react/devtools) for debugging routes and navigation. The DevTools panel appears in the bottom-right corner of your application.
+## 🔧 Git Hooks
 
-## License
+[Lefthook](https://github.com/evilmartians/lefthook) で Git Hooks を管理しています：
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
+- **pre-commit**: ステージされたファイルに対して Lint/Format チェック
+- **pre-push**: プッシュ前に全ファイルの Lint/Format チェック
+
+## 📄 ライセンス
+
+MIT License - [LICENSE.md](LICENSE.md) を参照してください。

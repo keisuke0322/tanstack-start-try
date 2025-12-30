@@ -1,10 +1,10 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useAuth } from "../utils/useAuth";
+import { useAuth } from "../../utils/useAuth";
 
 // ==========================================
 // 🚀 ルート定義
 // ==========================================
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute("/dashboard/")({
   // ⚠️ beforeLoadは削除（SSRではlocalStorageにアクセスできないため）
   component: DashboardPage,
 });

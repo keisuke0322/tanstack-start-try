@@ -1,21 +1,10 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import * as fs from "node:fs";
+import { readCount, resetCountValue, updateCountValue } from "./counter.logic";
 
 // ==========================================
 // 📁 ファイルベースのカウンター（Server Functions デモ）
 // ==========================================
-const filePath = "count.txt";
-
-// カウントを読み取る（サーバーサイドのみ）
-async function readCount(): Promise<number> {
-  try {
-    const content = await fs.promises.readFile(filePath, "utf-8");
-    return parseInt(content, 10) || 0;
-  } catch {
-    return 0;
-  }
-}
 
 // ==========================================
 // 🔧 Server Functions
@@ -32,16 +21,14 @@ export const getCount = createServerFn({ method: "GET" }).handler(async () => {
 export const updateCount = createServerFn({ method: "POST" })
   .inputValidator((data: { increment: number }) => data)
   .handler(async ({ data }) => {
-    const currentCount = await readCount();
-    const newCount = currentCount + data.increment;
-    await fs.promises.writeFile(filePath, String(newCount));
+    const newCount = await updateCountValue(data.increment);
     console.log("[Server] updateCount called, new count:", newCount);
     return newCount;
   });
 
 // POST: カウントをリセット
 export const resetCount = createServerFn({ method: "POST" }).handler(async () => {
-  await fs.promises.writeFile(filePath, "0");
+  await resetCountValue();
   console.log("[Server] resetCount called");
   return 0;
 });
@@ -49,7 +36,7 @@ export const resetCount = createServerFn({ method: "POST" }).handler(async () =>
 // ==========================================
 // 🚀 ルート定義
 // ==========================================
-export const Route = createFileRoute("/counter")({
+export const Route = createFileRoute("/counter/")({
   // ✅ loader でサーバーサイドでデータ取得
   loader: async () => {
     const count = await getCount();

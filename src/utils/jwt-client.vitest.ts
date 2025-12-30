@@ -1,29 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { decodeTokenPayload, getToken, isTokenExpired, removeToken, setToken } from "./jwt-client";
 
 // 定数
 const ONE_HOUR_IN_SECONDS = 3600;
-
-// localStorageのモック
-const localStorageMock = (() => {
-  let store: Record<string, string> = {};
-  return {
-    getItem: vi.fn((key: string) => store[key] ?? null),
-    setItem: vi.fn((key: string, value: string) => {
-      store[key] = value;
-    }),
-    removeItem: vi.fn((key: string) => {
-      delete store[key];
-    }),
-    clear: vi.fn(() => {
-      store = {};
-    }),
-  };
-})();
-
-Object.defineProperty(globalThis, "localStorage", {
-  value: localStorageMock,
-});
 
 // 共通ヘルパー関数: オブジェクトをBase64URLエンコード
 const base64UrlEncode = (obj: object): string => {
@@ -41,27 +20,28 @@ const createTestToken = (payload: object): string => {
 
 describe("jwt-client", () => {
   beforeEach(() => {
-    localStorageMock.clear();
-    vi.clearAllMocks();
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe("setToken", () => {
     it("should save token to localStorage", () => {
       setToken("test-token");
-      expect(localStorageMock.setItem).toHaveBeenCalledWith("jwt_token", "test-token");
+      expect(localStorage.getItem("jwt_token")).toBe("test-token");
     });
   });
 
   describe("getToken", () => {
     it("should get token from localStorage", () => {
-      localStorageMock.getItem.mockReturnValueOnce("stored-token");
+      localStorage.setItem("jwt_token", "stored-token");
       const token = getToken();
-      expect(localStorageMock.getItem).toHaveBeenCalledWith("jwt_token");
       expect(token).toBe("stored-token");
     });
 
     it("should return null when no token exists", () => {
-      localStorageMock.getItem.mockReturnValueOnce(null);
       const token = getToken();
       expect(token).toBeNull();
     });
@@ -69,8 +49,9 @@ describe("jwt-client", () => {
 
   describe("removeToken", () => {
     it("should remove token from localStorage", () => {
+      localStorage.setItem("jwt_token", "some-token");
       removeToken();
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith("jwt_token");
+      expect(localStorage.getItem("jwt_token")).toBeNull();
     });
   });
 

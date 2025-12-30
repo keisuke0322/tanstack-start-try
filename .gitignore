@@ -22,3 +22,7 @@ dist
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# test output
+coverage/
+test-results/

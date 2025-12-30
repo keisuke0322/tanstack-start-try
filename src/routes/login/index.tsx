@@ -2,8 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { valibotValidator } from "@tanstack/valibot-adapter";
 import { useState } from "react";
 import * as v from "valibot";
-import { loginFn } from "../utils/auth";
-import { setToken } from "../utils/jwt-client";
+import { loginFn } from "../../utils/auth";
+import { setToken } from "../../utils/jwt-client";
 
 // ==========================================
 // 📋 Search Params スキーマ
@@ -16,7 +16,7 @@ const loginSearchSchema = v.object({
 // ==========================================
 // 🚀 ログインルート
 // ==========================================
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/login/")({
   validateSearch: valibotValidator(loginSearchSchema),
   component: LoginPage,
 });

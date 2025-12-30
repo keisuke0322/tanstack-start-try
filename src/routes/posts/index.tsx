@@ -1,6 +1,8 @@
 import { Link, createFileRoute, stripSearchParams, useNavigate } from "@tanstack/react-router";
 import { valibotValidator } from "@tanstack/valibot-adapter";
 import * as v from "valibot";
+import { DUMMY_POSTS } from "../../data/posts";
+import { DEFAULT_PAGE_SIZE, loadPosts } from "./posts.logic";
 
 // ==========================================
 // 📚 Search Params のスキーマ定義（Valibot）
@@ -21,32 +23,6 @@ const postsSearchSchema = v.object({
   // ソート順（デフォルト: "newest"）
   sort: v.fallback(v.picklist(["newest", "oldest"]), defaultSearchValues.sort),
 });
-
-// ==========================================
-// 📝 ダミーデータ（実際はDBから取得）
-// ==========================================
-const allPosts = [
-  {
-    id: "1",
-    title: "TanStack Routerの型安全性について",
-    author: "田中太郎",
-    createdAt: "2025-12-20",
-  },
-  {
-    id: "2",
-    title: "Search Paramsをステート管理として使う",
-    author: "佐藤花子",
-    createdAt: "2025-12-21",
-  },
-  { id: "3", title: "Server Functionsの基本", author: "鈴木一郎", createdAt: "2025-12-22" },
-  { id: "4", title: "Valibotでバリデーション", author: "高橋美咲", createdAt: "2025-12-23" },
-  { id: "5", title: "認証パターンの実装", author: "山田健太", createdAt: "2025-12-24" },
-  { id: "6", title: "TanStack QueryとRouterの連携", author: "伊藤さくら", createdAt: "2025-12-25" },
-  { id: "7", title: "ファイルベースルーティング入門", author: "渡辺翔", createdAt: "2025-12-26" },
-  { id: "8", title: "SSRとストリーミング", author: "中村優子", createdAt: "2025-12-27" },
-];
-
-const POSTS_PER_PAGE = 3;
 
 // ==========================================
 // 🚀 ルート定義
@@ -70,30 +46,7 @@ export const Route = createFileRoute("/posts/")({
 
   // ✅ データ取得（サーバーサイドで実行）
   loader: ({ deps }) => {
-    // 検索フィルタリング
-    let filtered = allPosts.filter((post) =>
-      post.title.toLowerCase().includes(deps.q.toLowerCase()),
-    );
-
-    // ソート
-    filtered = filtered.toSorted((a, b) => {
-      if (deps.sort === "newest") {
-        return b.createdAt.localeCompare(a.createdAt);
-      }
-      return a.createdAt.localeCompare(b.createdAt);
-    });
-
-    // ページネーション
-    const totalPages = Math.ceil(filtered.length / POSTS_PER_PAGE);
-    const start = (deps.page - 1) * POSTS_PER_PAGE;
-    const posts = filtered.slice(start, start + POSTS_PER_PAGE);
-
-    return {
-      posts,
-      totalPages,
-      currentPage: deps.page,
-      totalCount: filtered.length,
-    };
+    return loadPosts(DUMMY_POSTS, deps, DEFAULT_PAGE_SIZE);
   },
 
   component: PostsIndex,

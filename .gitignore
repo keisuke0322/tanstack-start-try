@@ -26,3 +26,6 @@ dist
 # test output
 coverage/
 test-results/
+
+# ...existing code...
+playwright-report/

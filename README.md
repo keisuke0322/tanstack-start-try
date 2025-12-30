@@ -128,6 +128,16 @@ e2e/
 - **pre-commit**: ステージされたファイルに対して Lint/Format チェック
 - **pre-push**: プッシュ前に全ファイルの Lint/Format チェック
 
+## 🤖 GitHub Actions
+
+`main` ブランチへのプッシュ・プルリクエスト時に自動で CI が実行されます。
+
+| ワークフロー | 内容                                                                       |
+| ------------ | -------------------------------------------------------------------------- |
+| E2E Tests    | Playwright による E2E テストを実行し、レポートをアーティファクトとして保存 |
+
+ワークフローファイル: [.github/workflows/e2e.yml](.github/workflows/e2e.yml)
+
 ## 📄 ライセンス
 
 MIT License - [LICENSE.md](LICENSE.md) を参照してください。

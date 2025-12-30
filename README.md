@@ -23,6 +23,7 @@
 | ビルド         | [Vite](https://vite.dev/)                                                                             |
 | Lint/Format    | [oxlint](https://oxc.rs/docs/guide/usage/linter) / [oxfmt](https://oxc.rs/docs/guide/usage/formatter) |
 | テスト         | [Vitest](https://vitest.dev/)（単体）/ [Playwright](https://playwright.dev/)（E2E）                   |
+| 認証           | [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)                                            |
 | ランタイム     | [Bun](https://bun.sh/)                                                                                |
 | Git Hooks      | [Lefthook](https://github.com/evilmartians/lefthook)                                                  |
 

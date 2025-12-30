@@ -1,10 +1,11 @@
+/* eslint-disable import/no-default-export */
 import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Playwright E2Eテスト設定
  * @see https://playwright.dev/docs/test-configuration
  */
-export const localConfig = defineConfig({
+export default defineConfig({
   // テストファイルのディレクトリ
   testDir: "./e2e",
 

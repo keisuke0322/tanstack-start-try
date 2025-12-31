@@ -27,5 +27,5 @@ dist
 coverage/
 test-results/
 
-# ...existing code...
+# E2E test output
 playwright-report/

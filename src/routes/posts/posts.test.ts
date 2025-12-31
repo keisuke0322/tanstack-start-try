@@ -11,4 +11,10 @@
 // ロジックの単体テストを実行するには:
 // bun test src/utils/posts.test.ts
 
-export {};
+import { describe, it, expect } from "vitest";
+
+describe("posts", () => {
+  it("hello world", () => {
+    expect(1 + 1).toBe(2);
+  });
+});

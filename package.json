@@ -6,7 +6,7 @@
     "postinstall": "lefthook install",
     "dev": "vite dev",
     "build": "vite build",
-    "start": "vite preview",
+    "start": "node dist/server/server.js",
     "check": "oxlint --type-aware --type-check && oxfmt --check",
     "fix": "oxlint --type-aware --fix && oxfmt",
     "lint": "oxlint --type-aware --type-check",

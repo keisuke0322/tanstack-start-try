@@ -5,6 +5,7 @@ package-lock.json
 # output
 dist
 .output
+.vercel
 
 # environment variable files
 .env

@@ -1,6 +1,8 @@
 import { Link, createFileRoute, stripSearchParams, useNavigate } from "@tanstack/react-router";
 import { valibotValidator } from "@tanstack/valibot-adapter";
 import * as v from "valibot";
+// TODO: ダミーデータをhono(仮でjsonplaceholder)から取得するように変更予定
+// TODO: バックエンドはhonoで実装予定
 import { DUMMY_POSTS } from "../../data/posts";
 import { DEFAULT_PAGE_SIZE, loadPosts } from "./posts.logic";
 

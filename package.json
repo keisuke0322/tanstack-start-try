@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "lefthook install",
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "VERCEL=1 vite build",
     "start": "node .output/server/index.mjs",
     "check": "oxlint --type-aware --type-check && oxfmt --check",
     "fix": "oxlint --type-aware --fix && oxfmt",

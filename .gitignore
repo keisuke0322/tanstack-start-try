@@ -5,6 +5,7 @@ package-lock.json
 # output
 dist
 .output
+.vercel
 
 # environment variable files
 .env
@@ -27,5 +28,5 @@ dist
 coverage/
 test-results/
 
-# ...existing code...
+# E2E test output
 playwright-report/

@@ -1,6 +1,11 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "ignorePatterns": ["**/routeTree.gen.ts"],
+  "ignorePatterns": [
+    "**/routeTree.gen.ts",
+    "**/coverage/**",
+    "**/playwright-report/**",
+    "**/test-results/**"
+  ],
   "plugins": ["react", "react-perf", "import", "jsx-a11y", "promise"],
   "env": {
     "node": true,

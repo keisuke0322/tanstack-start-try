@@ -1,7 +1,10 @@
 import { expect, test } from "@playwright/test";
+import { mockJsonPlaceholderApi } from "./mocks/api";
 
 test.describe("ホームページ", () => {
   test.beforeEach(async ({ page }) => {
+    // APIをモック（/postsへの遷移時に必要）
+    await mockJsonPlaceholderApi(page);
     await page.goto("/");
   });
 

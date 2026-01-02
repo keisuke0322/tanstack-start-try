@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import type { Post, User } from "../../src/data/posts";
+import type { Post, User } from "../../src/types/api";
 
 // ==========================================
 // 📦 モックデータ
@@ -39,16 +39,17 @@ export const MOCK_USERS: User[] = [
 // ==========================================
 
 /**
- * JSONPlaceholder APIをモックする
+ * APIをモックする
  * page.route() を使用してAPIリクエストをインターセプト
+ * /api/* パターンでローカルAPIサーバーへのリクエストをモック
  */
 export async function mockJsonPlaceholderApi(page: Page) {
-  // 全てのjsonplaceholder APIリクエストをインターセプト（より柔軟なパターン）
-  await page.route(/jsonplaceholder\.typicode\.com/, (route) => {
+  // /api/* パターンでAPIリクエストをインターセプト
+  await page.route("**/api/**", (route) => {
     const url = route.request().url();
 
-    // 個別投稿API: /posts/{id}
-    const postIdMatch = url.match(/\/posts\/(\d+)$/);
+    // 個別投稿API: /api/posts/{id}
+    const postIdMatch = url.match(/\/api\/posts\/(\d+)$/);
     if (postIdMatch) {
       const postId = Number(postIdMatch[1]);
       const post = MOCK_POSTS.find((p) => p.id === postId);
@@ -66,8 +67,8 @@ export async function mockJsonPlaceholderApi(page: Page) {
       });
     }
 
-    // 投稿一覧API: /posts
-    if (url.match(/\/posts$/)) {
+    // 投稿一覧API: /api/posts
+    if (url.match(/\/api\/posts$/)) {
       return route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -75,8 +76,8 @@ export async function mockJsonPlaceholderApi(page: Page) {
       });
     }
 
-    // 個別ユーザーAPI: /users/{id}
-    const userIdMatch = url.match(/\/users\/(\d+)$/);
+    // 個別ユーザーAPI: /api/users/{id}
+    const userIdMatch = url.match(/\/api\/users\/(\d+)$/);
     if (userIdMatch) {
       const userId = Number(userIdMatch[1]);
       const user = MOCK_USERS.find((u) => u.id === userId);
@@ -94,8 +95,8 @@ export async function mockJsonPlaceholderApi(page: Page) {
       });
     }
 
-    // ユーザー一覧API: /users
-    if (url.match(/\/users$/)) {
+    // ユーザー一覧API: /api/users
+    if (url.match(/\/api\/users$/)) {
       return route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -112,7 +113,7 @@ export async function mockJsonPlaceholderApi(page: Page) {
  * APIエラーをシミュレートする
  */
 export async function mockApiError(page: Page, statusCode: number = 500) {
-  await page.route("**/jsonplaceholder.typicode.com/**", (route) => {
+  await page.route("**/api/**", (route) => {
     route.fulfill({
       status: statusCode,
       contentType: "application/json",
@@ -125,7 +126,7 @@ export async function mockApiError(page: Page, statusCode: number = 500) {
  * API遅延をシミュレートする
  */
 export async function mockApiWithDelay(page: Page, delayMs: number = 2000) {
-  await page.route("**/jsonplaceholder.typicode.com/posts", async (route) => {
+  await page.route("**/api/posts", async (route) => {
     await new Promise((resolve) => setTimeout(resolve, delayMs));
     route.fulfill({
       status: 200,
@@ -134,7 +135,7 @@ export async function mockApiWithDelay(page: Page, delayMs: number = 2000) {
     });
   });
 
-  await page.route("**/jsonplaceholder.typicode.com/users/*", async (route) => {
+  await page.route("**/api/users/*", async (route) => {
     const url = route.request().url();
     const userIdMatch = url.match(/\/users\/(\d+)/);
     const userId = userIdMatch ? Number(userIdMatch[1]) : null;

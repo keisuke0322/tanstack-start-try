@@ -1,10 +1,14 @@
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronsLeft,
+  IconChevronsRight,
+} from "@tabler/icons-react";
 import { Link, createFileRoute, stripSearchParams, useNavigate } from "@tanstack/react-router";
 import { valibotValidator } from "@tanstack/valibot-adapter";
 import * as v from "valibot";
-// TODO: ダミーデータをhono(仮でjsonplaceholder)から取得するように変更予定
-// TODO: バックエンドはhonoで実装予定
-import { DUMMY_POSTS } from "../../data/posts";
-import { DEFAULT_PAGE_SIZE, loadPosts } from "./posts.logic";
+import { PostCard, PostCardSkeleton } from "./PostCard";
+import { DEFAULT_PAGE_SIZE, getPageWindow, loadPosts, postsQueryOptions } from "./posts.logic";
 
 // ==========================================
 // 📚 Search Params のスキーマ定義（Valibot）
@@ -46,13 +50,59 @@ export const Route = createFileRoute("/posts/")({
     sort: search.sort,
   }),
 
-  // ✅ データ取得（サーバーサイドで実行）
-  loader: ({ deps }) => {
-    return loadPosts(DUMMY_POSTS, deps, DEFAULT_PAGE_SIZE);
+  // ✅ データ取得（TanStack Queryでプリフェッチ）
+  loader: async ({ context, deps }) => {
+    // QueryClientを使って投稿データをプリフェッチ
+    const allPosts = await context.queryClient.ensureQueryData(postsQueryOptions);
+    return loadPosts(allPosts, deps, DEFAULT_PAGE_SIZE);
   },
+
+  // ✅ ローディング中のUI
+  pendingComponent: PostsLoading,
+
+  // ✅ エラー時のUI
+  errorComponent: PostsError,
 
   component: PostsIndex,
 });
+
+// ==========================================
+// ⏳ ローディングコンポーネント
+// ==========================================
+function PostsLoading() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="h-9 w-32 animate-pulse rounded bg-gray-200" />
+        <div className="h-5 w-20 animate-pulse rounded bg-gray-200" />
+      </div>
+      <div className="space-y-4">
+        {Array.from({ length: DEFAULT_PAGE_SIZE }).map((_, i) => (
+          <PostCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// ❌ エラーコンポーネント
+// ==========================================
+function PostsError({ error }: { error: Error }) {
+  return (
+    <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+      <h2 className="text-xl font-semibold text-red-800">エラーが発生しました</h2>
+      <p className="mt-2 text-red-600">{error.message}</p>
+      <Link
+        to="/posts"
+        search={{ page: 1, q: "", sort: "newest" }}
+        className="mt-4 inline-block rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+      >
+        再試行
+      </Link>
+    </div>
+  );
+}
 
 // ==========================================
 // 🎨 コンポーネント
@@ -137,45 +187,48 @@ function PostsIndex() {
         {posts.length === 0 ? (
           <p className="py-8 text-center text-gray-500">投稿が見つかりませんでした</p>
         ) : (
-          posts.map((post) => (
-            <Link
-              key={post.id}
-              // ✅ 型安全: 存在しないパラメータはエラーになる
-              to="/posts/$postId"
-              params={{ postId: post.id }}
-              className="block rounded-lg bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-            >
-              <h2 className="text-xl font-semibold text-gray-900">{post.title}</h2>
-              <div className="mt-2 flex items-center gap-4 text-sm text-gray-500">
-                <span>{post.author}</span>
-                <span>{post.createdAt}</span>
-              </div>
-            </Link>
-          ))
+          posts.map((post) => <PostCard key={post.id} post={post} />)
         )}
       </div>
 
       {/* 📑 ページネーション */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          {/* 前へ */}
+        <div className="flex items-center justify-center gap-1">
+          {/* 最初のページへ */}
+          {currentPage > 1 ? (
+            <Link
+              to="/posts"
+              search={{ page: 1, q, sort }}
+              className="rounded-md bg-gray-100 p-2 text-gray-700 hover:bg-gray-200"
+              aria-label="最初のページへ"
+            >
+              <IconChevronsLeft size={20} />
+            </Link>
+          ) : (
+            <span className="cursor-not-allowed rounded-md bg-gray-50 p-2 text-gray-400">
+              <IconChevronsLeft size={20} />
+            </span>
+          )}
+
+          {/* 前のページへ */}
           {currentPage > 1 ? (
             <Link
               to="/posts"
               search={{ page: currentPage - 1, q, sort }}
-              className="rounded-md bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200"
+              className="rounded-md bg-gray-100 p-2 text-gray-700 hover:bg-gray-200"
+              aria-label="前のページへ"
             >
-              ← 前へ
+              <IconChevronLeft size={20} />
             </Link>
           ) : (
-            <span className="cursor-not-allowed rounded-md bg-gray-50 px-4 py-2 text-gray-400">
-              ← 前へ
+            <span className="cursor-not-allowed rounded-md bg-gray-50 p-2 text-gray-400">
+              <IconChevronLeft size={20} />
             </span>
           )}
 
-          {/* ページ番号 */}
+          {/* ページ番号（5ページ分のウィンドウ） */}
           <div className="flex gap-1">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+            {getPageWindow(currentPage, totalPages).map((pageNum) => (
               <Link
                 key={pageNum}
                 to="/posts"
@@ -191,18 +244,35 @@ function PostsIndex() {
             ))}
           </div>
 
-          {/* 次へ */}
+          {/* 次のページへ */}
           {currentPage < totalPages ? (
             <Link
               to="/posts"
               search={{ page: currentPage + 1, q, sort }}
-              className="rounded-md bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200"
+              className="rounded-md bg-gray-100 p-2 text-gray-700 hover:bg-gray-200"
+              aria-label="次のページへ"
             >
-              次へ →
+              <IconChevronRight size={20} />
             </Link>
           ) : (
-            <span className="cursor-not-allowed rounded-md bg-gray-50 px-4 py-2 text-gray-400">
-              次へ →
+            <span className="cursor-not-allowed rounded-md bg-gray-50 p-2 text-gray-400">
+              <IconChevronRight size={20} />
+            </span>
+          )}
+
+          {/* 最後のページへ */}
+          {currentPage < totalPages ? (
+            <Link
+              to="/posts"
+              search={{ page: totalPages, q, sort }}
+              className="rounded-md bg-gray-100 p-2 text-gray-700 hover:bg-gray-200"
+              aria-label="最後のページへ"
+            >
+              <IconChevronsRight size={20} />
+            </Link>
+          ) : (
+            <span className="cursor-not-allowed rounded-md bg-gray-50 p-2 text-gray-400">
+              <IconChevronsRight size={20} />
             </span>
           )}
         </div>

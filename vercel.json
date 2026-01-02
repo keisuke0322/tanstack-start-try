@@ -3,5 +3,8 @@
   "installCommand": "bun install",
   "buildCommand": "bun run build:frontend && cp -r apps/frontend/.vercel/output .vercel/output",
   "outputDirectory": ".vercel/output",
-  "framework": null
+  "framework": null,
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/[[...route]]" }
+  ]
 }

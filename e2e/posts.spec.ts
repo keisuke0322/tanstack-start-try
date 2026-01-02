@@ -1,7 +1,13 @@
 import { expect, test } from "@playwright/test";
+import { mockJsonPlaceholderApi } from "./mocks/api";
+
+// 実際のJSONPlaceholder APIは100件の投稿を返す
+const REAL_API_POST_COUNT = 100;
 
 test.describe("投稿一覧ページ", () => {
   test.beforeEach(async ({ page }) => {
+    // APIをモック（ユーザーデータはクライアントでフェッチされるのでモックが効く）
+    await mockJsonPlaceholderApi(page);
     await page.goto("/posts");
   });
 
@@ -9,8 +15,8 @@ test.describe("投稿一覧ページ", () => {
     // タイトルが表示される
     await expect(page.getByRole("heading", { name: "投稿一覧" })).toBeVisible();
 
-    // 投稿数が表示される
-    await expect(page.getByText(/\d+件の投稿/)).toBeVisible();
+    // 投稿数が表示される（実際のAPIは100件）
+    await expect(page.getByText(`${REAL_API_POST_COUNT}件の投稿`)).toBeVisible();
 
     // 検索ボックスが表示される
     await expect(page.getByPlaceholder("タイトルで検索...")).toBeVisible();
@@ -20,19 +26,34 @@ test.describe("投稿一覧ページ", () => {
     await expect(page.getByRole("link", { name: "古い順" })).toBeVisible();
   });
 
+  test("投稿カードにユーザー名が表示される", async ({ page }) => {
+    // ユーザー名が表示される（モックされたユーザーデータから）
+    // 実際のAPIからの投稿はuserId: 1-10を持つので、モックのユーザー名が表示される
+    await expect(page.getByText(/テストユーザー\d+/).first()).toBeVisible({ timeout: 10000 });
+  });
+
   test("検索機能が動作する", async ({ page }) => {
     // 検索ボックスにキーワードを入力してEnter
+    // 実際のAPIデータに含まれるキーワードを使用
     const searchBox = page.getByPlaceholder("タイトルで検索...");
-    await searchBox.fill("React");
+    await searchBox.fill("qui");
     await searchBox.press("Enter");
 
     // ページ遷移を待つ
     await page.waitForLoadState("networkidle");
 
-    // 検索結果が表示される（または「見つかりませんでした」）
-    await expect(
-      page.getByText(/投稿が見つかりませんでした/).or(page.locator("a[href*='/posts/']").first()),
-    ).toBeVisible({ timeout: 10000 });
+    // 検索結果が表示される（"qui"を含むタイトルの投稿カードがあること）
+    await expect(page.locator("main").getByRole("link").first()).toBeVisible({ timeout: 10000 });
+  });
+
+  // 注意: 検索機能はサーバーサイドloaderに依存しており、クライアント側のナビゲーションでは
+  // データが更新されない場合があるため、URLパラメータの変更のみをテストします
+  test("検索で結果がない場合のメッセージ表示", async ({ page }) => {
+    // 直接URLパラメータ付きで検索結果なしのページにアクセス
+    await page.goto("/posts?q=notexistxyz123");
+
+    // 検索結果なしのメッセージが表示される
+    await expect(page.getByText("投稿が見つかりませんでした")).toBeVisible({ timeout: 10000 });
   });
 
   test("ソート切り替えが動作する", async ({ page }) => {
@@ -59,8 +80,8 @@ test.describe("投稿一覧ページ", () => {
       // URLにpage=2が追加される
       await expect(page).toHaveURL(/page=2/);
 
-      // 「前へ」ボタンがクリック可能になる
-      const prevButton = page.getByRole("link", { name: /前へ/ });
+      // 「前のページへ」ボタンがクリック可能になる
+      const prevButton = page.getByRole("link", { name: /前のページへ/ });
       await expect(prevButton).toBeVisible();
 
       // 前へをクリック
@@ -85,6 +106,11 @@ test.describe("投稿一覧ページ", () => {
 });
 
 test.describe("投稿詳細ページ", () => {
+  test.beforeEach(async ({ page }) => {
+    // APIをモック
+    await mockJsonPlaceholderApi(page);
+  });
+
   // 注意: このテストはServer Functionsを使った認証が必要なため、
   // E2E環境では正しく動作しない可能性があります
   test.skip("存在しない投稿にアクセスすると404が表示される", async ({ page }) => {
@@ -99,8 +125,8 @@ test.describe("投稿詳細ページ", () => {
       page.getByRole("heading", { name: "ダッシュボード" }).or(page.getByText("認証を確認中")),
     ).toBeVisible({ timeout: 30000 });
 
-    // 存在しない投稿にアクセス
-    await page.goto("/posts/nonexistent-post-id");
+    // 存在しない投稿にアクセス（モックデータにないID）
+    await page.goto("/posts/999");
 
     // 404メッセージが表示される
     await expect(page.getByText(/投稿が見つかりません|not found/i)).toBeVisible({

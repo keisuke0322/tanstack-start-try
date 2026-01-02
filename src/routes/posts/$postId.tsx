@@ -1,5 +1,7 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
-import { POSTS_DETAIL } from "../../data/posts";
+import { Suspense } from "react";
+import { postQueryOptions, userQueryOptions } from "./posts.logic";
 import { useAuth } from "../../utils/useAuth";
 
 // ==========================================
@@ -9,18 +11,31 @@ export const Route = createFileRoute("/posts/$postId")({
   // ⚠️ beforeLoadの認証チェックは削除（SSRではlocalStorageにアクセスできないため）
   // 認証チェックはコンポーネント内のuseEffectで行う
 
-  // ✅ loader でデータ取得（サーバーサイド）
-  loader: ({ params }) => {
-    // ✅ params.postId は自動で string 型に推論される
-    const post = POSTS_DETAIL[params.postId];
+  // ✅ loader でデータ取得（TanStack Queryでプリフェッチ）
+  loader: async ({ params, context }) => {
+    const postId = Number(params.postId);
 
-    if (!post) {
-      // ✅ notFound() で404を返す
+    // 無効なIDの場合は404
+    if (Number.isNaN(postId) || postId <= 0) {
       throw notFound();
     }
 
-    return post;
+    try {
+      // 投稿データをプリフェッチ
+      const post = await context.queryClient.ensureQueryData(postQueryOptions(postId));
+      // ユーザーデータもプリフェッチ
+      await context.queryClient.ensureQueryData(userQueryOptions(post.userId));
+      return { postId };
+    } catch {
+      throw notFound();
+    }
   },
+
+  // ✅ ローディング中のUI
+  pendingComponent: PostDetailLoading,
+
+  // ✅ エラー時のUI
+  errorComponent: PostDetailError,
 
   // ✅ 404時のコンポーネント
   notFoundComponent: () => (
@@ -41,6 +56,53 @@ export const Route = createFileRoute("/posts/$postId")({
 });
 
 // ==========================================
+// ⏳ ローディングコンポーネント
+// ==========================================
+function PostDetailLoading() {
+  return (
+    <article className="rounded-lg bg-white p-8 shadow-sm">
+      <div className="mb-6 flex items-center gap-4">
+        <div className="h-6 w-20 animate-pulse rounded-full bg-gray-200" />
+        <div className="h-4 w-32 animate-pulse rounded bg-gray-200" />
+      </div>
+      <div className="mb-6 h-9 w-3/4 animate-pulse rounded bg-gray-200" />
+      <div className="space-y-3">
+        <div className="h-4 w-full animate-pulse rounded bg-gray-200" />
+        <div className="h-4 w-full animate-pulse rounded bg-gray-200" />
+        <div className="h-4 w-2/3 animate-pulse rounded bg-gray-200" />
+      </div>
+    </article>
+  );
+}
+
+// ==========================================
+// ❌ エラーコンポーネント
+// ==========================================
+function PostDetailError({ error }: { error: Error }) {
+  return (
+    <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+      <h2 className="text-xl font-semibold text-red-800">エラーが発生しました</h2>
+      <p className="mt-2 text-red-600">{error.message}</p>
+      <Link
+        to="/posts"
+        search={{ page: 1, q: "", sort: "newest" }}
+        className="mt-4 inline-block rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+      >
+        一覧に戻る
+      </Link>
+    </div>
+  );
+}
+
+// ==========================================
+// 👤 著者名表示コンポーネント
+// ==========================================
+function AuthorName({ userId }: { userId: number }) {
+  const { data: user } = useSuspenseQuery(userQueryOptions(userId));
+  return <span>{user.name}</span>;
+}
+
+// ==========================================
 // 🎨 コンポーネント
 // ==========================================
 function PostDetail() {
@@ -48,9 +110,9 @@ function PostDetail() {
   const { postId } = Route.useParams();
   // 型: { postId: string }
 
-  // ✅ loaderData も完全に型推論される
-  const post = Route.useLoaderData();
-  // 型: { id: string; title: string; content: string; author: string; createdAt: string }
+  // ✅ loaderDataから投稿IDを取得し、TanStack Queryでデータ取得
+  const loaderData = Route.useLoaderData();
+  const { data: post } = useSuspenseQuery(postQueryOptions(loaderData.postId));
 
   // ✅ useAuth フックで認証チェック（認証必須）
   const { user, isLoading } = useAuth({
@@ -77,15 +139,16 @@ function PostDetail() {
       {/* メタ情報 */}
       <div className="mb-6 flex items-center gap-4 text-sm text-gray-500">
         <span className="rounded-full bg-gray-100 px-3 py-1">ID: {postId}</span>
-        <span>{post.author}</span>
-        <span>{post.createdAt}</span>
+        <Suspense fallback={<div className="h-4 w-24 animate-pulse rounded bg-gray-200" />}>
+          <AuthorName userId={post.userId} />
+        </Suspense>
       </div>
 
       {/* タイトル */}
       <h1 className="mb-6 text-3xl font-bold text-gray-900">{post.title}</h1>
 
       {/* 本文 */}
-      <div className="prose prose-gray max-w-none whitespace-pre-wrap">{post.content}</div>
+      <div className="prose prose-gray max-w-none whitespace-pre-wrap">{post.body}</div>
 
       {/* ナビゲーション */}
       <div className="mt-8 flex gap-4 border-t border-gray-200 pt-8">
@@ -107,7 +170,7 @@ function PostDetail() {
             ← 前の記事
           </Link>
         )}
-        {Number(postId) < 8 && (
+        {Number(postId) < 100 && (
           <Link
             to="/posts/$postId"
             params={{ postId: String(Number(postId) + 1) }}

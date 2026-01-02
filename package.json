@@ -19,6 +19,8 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.0",
-    "lefthook": "^2.0.12"
+    "hono": "^4.6.0",
+    "lefthook": "^2.0.12",
+    "typescript": "^5.7.0"
   }
 }

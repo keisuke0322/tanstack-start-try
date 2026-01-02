@@ -28,8 +28,8 @@ test.describe("ホームページ", () => {
     // 投稿一覧カードをクリック
     await page.getByRole("link", { name: /投稿一覧/ }).click();
 
-    // /posts に遷移
-    await expect(page).toHaveURL("/posts");
+    // /posts に遷移（クエリパラメータがある場合もある）
+    await expect(page).toHaveURL(/\/posts/);
     await expect(page.getByRole("heading", { name: "投稿一覧" })).toBeVisible();
   });
 

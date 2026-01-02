@@ -1,22 +1,16 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "lib": ["ES2023"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "jsx": "react-jsx",
-
-    /* Strict */
     "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "forceConsistentCasingInFileNames": true,
-
-    /* Bundler mode */
     "noEmit": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "resolveJsonModule": true,
     "skipLibCheck": true
   },
-  "include": ["src"]
+  "references": [
+    { "path": "./apps/frontend" },
+    { "path": "./apps/api" },
+    { "path": "./packages/types" }
+  ]
 }

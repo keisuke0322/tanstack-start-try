@@ -41,13 +41,26 @@ export default defineConfig({
     },
   ],
 
-  // 開発サーバーの設定
-  webServer: {
-    command: "bun run dev --port 3000",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-    timeout: 180 * 1000,
-    stdout: "pipe",
-    stderr: "pipe",
-  },
+  // 開発サーバーの設定（フロントエンドとAPIサーバーの両方を起動）
+  webServer: [
+    {
+      // APIサーバーを起動
+      command: "bun --filter @tanstack-start-try/api dev",
+      url: "http://localhost:3001/api/posts",
+      cwd: "../..",
+      reuseExistingServer: !process.env.CI,
+      timeout: 60 * 1000,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+    {
+      // フロントエンドサーバーを起動
+      command: "bun run dev --port 3000",
+      url: "http://localhost:3000",
+      reuseExistingServer: !process.env.CI,
+      timeout: 180 * 1000,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+  ],
 });

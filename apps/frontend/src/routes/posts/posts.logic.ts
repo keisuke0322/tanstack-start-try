@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { API_BASE_URL, type Post, type User } from "../../data/posts";
+import { API_BASE_URL, type Post, type User } from "../../types/api";
 
 // ==========================================
 // 📚 投稿リスト操作の純粋関数

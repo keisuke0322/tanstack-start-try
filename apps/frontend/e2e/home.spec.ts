@@ -1,7 +1,10 @@
 import { expect, test } from "@playwright/test";
+import { mockJsonPlaceholderApi } from "./mocks/api";
 
 test.describe("ホームページ", () => {
   test.beforeEach(async ({ page }) => {
+    // APIをモック（/postsへの遷移時に必要）
+    await mockJsonPlaceholderApi(page);
     await page.goto("/");
   });
 
@@ -25,8 +28,8 @@ test.describe("ホームページ", () => {
     // 投稿一覧カードをクリック
     await page.getByRole("link", { name: /投稿一覧/ }).click();
 
-    // /posts に遷移
-    await expect(page).toHaveURL("/posts");
+    // /posts に遷移（クエリパラメータがある場合もある）
+    await expect(page).toHaveURL(/\/posts/);
     await expect(page.getByRole("heading", { name: "投稿一覧" })).toBeVisible();
   });
 

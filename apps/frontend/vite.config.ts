@@ -19,4 +19,14 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  server: {
+    port: 3000,
+    proxy: {
+      // ローカル開発時に/apiへのリクエストをHono APIサーバーに転送
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
+    },
+  },
 });

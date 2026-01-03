@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { posts, users } from "./data.js";
+import { posts, users } from "./data";
 
 // ==========================================
 // 🚀 API Handler (標準Vercel Function形式)

@@ -4,11 +4,11 @@ import { posts, users } from "./data.js";
 
 const app = new Hono().basePath("/api");
 
-// Enable CORS for local development
+// Enable CORS
 app.use(
   "*",
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5173"],
+    origin: "*",
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
   }),

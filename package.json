@@ -11,7 +11,7 @@
     "dev": "concurrently \"bun run dev:frontend\" \"bun run dev:api\"",
     "dev:frontend": "bun --filter @tanstack-start-try/frontend dev",
     "dev:api": "bun --filter @tanstack-start-try/api dev",
-    "build": "bun run build:types && bun run build:frontend",
+    "build": "bun run build:types && bun run build:api && bun run build:frontend",
     "build:types": "bun --filter @tanstack-start-try/types build",
     "build:frontend": "bun --filter @tanstack-start-try/frontend build",
     "build:api": "bun --filter @tanstack-start-try/api build",

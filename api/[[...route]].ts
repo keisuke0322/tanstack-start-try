@@ -1,7 +1,8 @@
+/* eslint-disable import/no-default-export */
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 // ==========================================
-// 📝 型定義
+// 📝 型定義 (generated from packages/types)
 // ==========================================
 type Post = {
   userId: number;
@@ -9,7 +10,6 @@ type Post = {
   title: string;
   body: string;
 };
-
 type User = {
   id: number;
   name: string;
@@ -117,7 +117,7 @@ const users: User[] = [
 ];
 
 // ==========================================
-// 🚀 API Handler (標準Vercel Function形式)
+// 🚀 API Handler (generated from vercel-handler.ts)
 // ==========================================
 export default function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
@@ -140,7 +140,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   // GET /api/posts/:id
   const postMatch = path.match(/^\/posts\/(\d+)$/);
   if (postMatch && req.method === "GET") {
-    const id = parseInt(postMatch[1], 10);
+    const id = parseInt(postMatch[1] || "0", 10);
     const post = posts.find((p) => p.id === id);
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
@@ -151,7 +151,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   // GET /api/users/:id
   const userMatch = path.match(/^\/users\/(\d+)$/);
   if (userMatch && req.method === "GET") {
-    const id = parseInt(userMatch[1], 10);
+    const id = parseInt(userMatch[1] || "0", 10);
     const user = users.find((u) => u.id === id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });

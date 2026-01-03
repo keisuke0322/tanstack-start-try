@@ -1,10 +1,11 @@
+/* eslint-disable import/no-default-export */
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { posts, users } from "./data";
 
 // ==========================================
-// 🚀 API Handler (標準Vercel Function形式)
+// 🚀 API Handler (generated from vercel-handler.ts)
 // ==========================================
-export function handler(req: VercelRequest, res: VercelResponse) {
+export default function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");

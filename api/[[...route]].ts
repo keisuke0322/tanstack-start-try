@@ -1,9 +1,7 @@
-import { Hono } from "hono";
-import { handle } from "hono/vercel";
-import { cors } from "hono/cors";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 // ==========================================
-// 📝 型定義（Vercel Functionsでは外部パッケージが解決できないためインライン）
+// 📝 型定義
 // ==========================================
 type Post = {
   userId: number;
@@ -94,35 +92,53 @@ const users: User[] = [
 ];
 
 // ==========================================
-// 🚀 Hono App
+// 🚀 API Handler (標準Vercel Function形式)
 // ==========================================
-const app = new Hono().basePath("/api");
+export default function handler(req: VercelRequest, res: VercelResponse) {
+  // CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-app.use(
-  "*",
-  cors({
-    origin: "*",
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
-  }),
-);
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
 
-app.get("/posts", (c) => c.json(posts));
+  const url = new URL(req.url || "", `http://${req.headers.host}`);
+  const path = url.pathname.replace(/^\/api/, "");
 
-app.get("/posts/:id", (c) => {
-  const id = parseInt(c.req.param("id"), 10);
-  const post = posts.find((p) => p.id === id);
-  if (!post) return c.json({ error: "Post not found" }, 404);
-  return c.json(post);
-});
+  // GET /api/posts
+  if (path === "/posts" && req.method === "GET") {
+    return res.status(200).json(posts);
+  }
 
-app.get("/users/:id", (c) => {
-  const id = parseInt(c.req.param("id"), 10);
-  const user = users.find((u) => u.id === id);
-  if (!user) return c.json({ error: "User not found" }, 404);
-  return c.json(user);
-});
+  // GET /api/posts/:id
+  const postMatch = path.match(/^\/posts\/(\d+)$/);
+  if (postMatch && req.method === "GET") {
+    const id = parseInt(postMatch[1], 10);
+    const post = posts.find((p) => p.id === id);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    return res.status(200).json(post);
+  }
 
-app.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
+  // GET /api/users/:id
+  const userMatch = path.match(/^\/users\/(\d+)$/);
+  if (userMatch && req.method === "GET") {
+    const id = parseInt(userMatch[1], 10);
+    const user = users.find((u) => u.id === id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    return res.status(200).json(user);
+  }
 
-export const apiHandler = handle(app);
+  // GET /api/health
+  if (path === "/health" && req.method === "GET") {
+    return res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+  }
+
+  // 404
+  return res.status(404).json({ error: "Not found" });
+}

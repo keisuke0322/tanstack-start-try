@@ -25,6 +25,7 @@
     "test:e2e": "bun --filter @tanstack-start-try/frontend test:e2e"
   },
   "dependencies": {
+    "@vercel/node": "^5.5.16",
     "hono": "^4.6.0"
   },
   "devDependencies": {

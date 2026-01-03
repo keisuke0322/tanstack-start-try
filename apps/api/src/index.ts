@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { serve } from "@hono/node-server";
 import { posts, users } from "./data.js";
 
 const app = new Hono().basePath("/api");
@@ -47,14 +46,6 @@ app.get("/users/:id", (c) => {
 // Health check endpoint
 app.get("/health", (c) => {
   return c.json({ status: "ok", timestamp: new Date().toISOString() });
-});
-
-const port = 3001;
-console.log(`🔥 Hono API server is running on http://localhost:${port}`);
-
-serve({
-  fetch: app.fetch,
-  port,
 });
 
 export { app };

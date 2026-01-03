@@ -51,7 +51,7 @@ const users: User[] = ${usersData};
 // ==========================================
 // 🚀 API Handler (標準Vercel Function形式)
 // ==========================================
-export function handler(req: VercelRequest, res: VercelResponse) {
+export default function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");

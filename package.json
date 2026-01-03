@@ -13,11 +13,15 @@
     "build:api": "bun --filter @tanstack-start-try/api build",
     "check": "bun --filter @tanstack-start-try/frontend check",
     "fix": "bun --filter @tanstack-start-try/frontend fix",
-    "test": "bun --filter @tanstack-start-try/frontend test",
+    "test": "bun --filter @tanstack-start-try/frontend test && bun --filter @tanstack-start-try/api test",
     "test:watch": "bun --filter @tanstack-start-try/frontend test:watch",
+    "test:api": "bun --filter @tanstack-start-try/api test",
+    "test:api:watch": "bun --filter @tanstack-start-try/api test:watch",
+    "test:api:coverage": "bun --filter @tanstack-start-try/api test:coverage",
     "test:e2e": "bun --filter @tanstack-start-try/frontend test:e2e"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "concurrently": "^9.1.0",
     "hono": "^4.6.0",
     "lefthook": "^2.0.12",

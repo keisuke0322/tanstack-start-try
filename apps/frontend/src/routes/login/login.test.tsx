@@ -16,6 +16,8 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 // テスト用のLoginFormコンポーネント
+import { useState } from "react";
+
 function LoginForm({
   onSubmit,
   isLoading = false,
@@ -25,6 +27,9 @@ function LoginForm({
   isLoading?: boolean;
   error?: string;
 }) {
+  const [email, setEmail] = useState("demo@example.com");
+  const [password, setPassword] = useState("password");
+
   return (
     <div>
       <h1>ログイン</h1>
@@ -34,17 +39,28 @@ function LoginForm({
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          const formData = new FormData(e.currentTarget);
-          const email = formData.get("email") as string;
-          const password = formData.get("password") as string;
           await onSubmit(email, password);
         }}
       >
         <label htmlFor="email">メールアドレス</label>
-        <input id="email" name="email" type="email" defaultValue="demo@example.com" required />
+        <input
+          id="email"
+          name="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
         <label htmlFor="password">パスワード</label>
-        <input id="password" name="password" type="password" defaultValue="password" required />
+        <input
+          id="password"
+          name="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
         <button type="submit" disabled={isLoading}>
           {isLoading ? "ログイン中..." : "ログイン"}

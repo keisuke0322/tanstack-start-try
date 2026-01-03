@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { posts, users } from "./data.js";
+import { posts, users } from "./data";
 
 describe("data module", () => {
   describe("posts", () => {

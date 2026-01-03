@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { posts, users } from "./data.js";
+import { posts, users } from "./data";
 
 const app = new Hono().basePath("/api");
 

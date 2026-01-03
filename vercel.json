@@ -4,6 +4,11 @@
   "buildCommand": "bun run build:types && bun run build:frontend && cp -r apps/frontend/.vercel/output .vercel/output",
   "outputDirectory": ".vercel/output",
   "framework": null,
+  "functions": {
+    "api/[[...route]].ts": {
+      "runtime": "@vercel/node@3.0.0"
+    }
+  },
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/[[...route]]" }
   ]

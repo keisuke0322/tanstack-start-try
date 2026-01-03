@@ -125,4 +125,4 @@ app.get("/users/:id", (c) => {
 
 app.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
 
-export default handle(app);
+export const apiHandler = handle(app);

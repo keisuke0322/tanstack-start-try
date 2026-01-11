@@ -77,7 +77,18 @@ export const userQueryOptions = (userId: number) =>
     queryFn: async () => {
       // APIからユーザー情報を取得
       const res = await fetch(apiUrl(`/api/users/${userId}`));
-      if (!res.ok) throw new Error("ユーザーが見つかりません");
+      // 404（ユーザー未登録）の場合はエラーにせず、表示用のフォールバックユーザーを返す
+      if (res.status === 404) {
+        return {
+          id: userId,
+          name: "不明なユーザー",
+          username: "unknown",
+          email: "",
+        } as User;
+      }
+
+      if (!res.ok) throw new Error("ユーザー情報の取得に失敗しました");
+
       const user = (await res.json()) as User;
       return user;
     },

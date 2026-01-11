@@ -79,7 +79,7 @@ bun run dev
 ## 📁 プロジェクト構成
 
 ```
-apps/frontend/src/
+src/
 ├── router.tsx          # ルーター設定
 ├── routeTree.gen.ts    # 自動生成されるルートツリー（編集不可）
 ├── styles.css          # グローバルスタイル
@@ -94,7 +94,7 @@ apps/frontend/src/
     ├── auth.ts         # 認証ユーティリティ
     ├── jwt-client.ts   # JWT 処理（クライアント）
     └── useAuth.ts      # 認証カスタムフック
-apps/frontend/e2e/
+e2e/
 ├── home.spec.ts        # ホームページの E2E テスト
 ├── counter.spec.ts     # カウンターの E2E テスト
 ├── posts.spec.ts       # 投稿ページの E2E テスト

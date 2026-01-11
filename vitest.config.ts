@@ -1,3 +1,4 @@
+/* eslint-disable import/no-default-export */
 import { defineConfig } from "vitest/config";
 
 // Root Vitest configuration: run unit tests only in the repository root `src`

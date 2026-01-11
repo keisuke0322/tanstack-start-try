@@ -105,7 +105,7 @@ export function filterPosts(posts: Post[], query: string): Post[] {
  * oldest: IDが小さい順（古い投稿）
  */
 export function sortPosts(posts: Post[], order: SortOrder): Post[] {
-  return posts.toSorted((a, b) => {
+  return posts.toSorted((a: Post, b: Post) => {
     if (order === "newest") {
       return b.id - a.id;
     }

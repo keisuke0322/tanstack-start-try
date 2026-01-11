@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Suspense } from "react";
-import type { Post } from "../../types/api";
+import type { Post } from "@tanstack-start-try/types";
 import { userQueryOptions } from "./posts.logic";
 
 // ==========================================

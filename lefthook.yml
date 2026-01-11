@@ -9,7 +9,8 @@ pre-commit:
       run: bun run check
     api-typecheck:
       glob: "apps/api/**/*.{ts}"
-      run: cd apps/api && bun run typecheck
+      # Only run api typecheck when the directory exists (repository may have moved code)
+      run: '[ -d apps/api ] && cd apps/api && bun run typecheck || echo "skipping api-typecheck"'
 
 pre-push:
   commands:

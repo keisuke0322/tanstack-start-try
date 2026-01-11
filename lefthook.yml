@@ -5,8 +5,8 @@ pre-commit:
   parallel: true
   commands:
     lint:
-      glob: "apps/frontend/**/*.{js,jsx,ts,tsx}"
-      run: cd apps/frontend && bun run check
+      glob: "**/*.{js,jsx,ts,tsx}"
+      run: bun run check
     api-typecheck:
       glob: "apps/api/**/*.{ts}"
       run: cd apps/api && bun run typecheck

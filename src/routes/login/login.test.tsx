@@ -155,7 +155,6 @@ describe("login validation", () => {
   });
 });
 
-// Search Paramsのテスト
 describe("login search params", () => {
   it("should default redirect to /dashboard", () => {
     const defaultRedirect = "/dashboard";

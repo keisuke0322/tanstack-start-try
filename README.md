@@ -1,6 +1,6 @@
 # TanStack Start サンプルアプリ
 
-[TanStack Start](https://tanstack.com/start) を使用したフルスタック React アプリケーションのサンプルです。
+[TanStack Start](https://tanstack.com/start) を使用した React フロントエンドアプリケーションのサンプルです。
 
 ## 🚀 デモ機能
 
@@ -23,7 +23,6 @@
 | ビルド         | [Vite](https://vite.dev/)                                                                             |
 | Lint/Format    | [oxlint](https://oxc.rs/docs/guide/usage/linter) / [oxfmt](https://oxc.rs/docs/guide/usage/formatter) |
 | テスト         | [Vitest](https://vitest.dev/)（単体）/ [Playwright](https://playwright.dev/)（E2E）                   |
-| 認証           | [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)                                            |
 | ランタイム     | [Bun](https://bun.sh/)                                                                                |
 | Git Hooks      | [Lefthook](https://github.com/evilmartians/lefthook)                                                  |
 
@@ -80,12 +79,10 @@ bun run dev
 ## 📁 プロジェクト構成
 
 ```
-src/
+apps/frontend/src/
 ├── router.tsx          # ルーター設定
 ├── routeTree.gen.ts    # 自動生成されるルートツリー（編集不可）
 ├── styles.css          # グローバルスタイル
-├── data/
-│   └── posts.ts        # サンプルデータ
 ├── routes/
 │   ├── __root.tsx      # ルートレイアウト
 │   ├── index.tsx       # / ページ
@@ -95,10 +92,9 @@ src/
 │   └── posts/          # /posts ページ群
 └── utils/
     ├── auth.ts         # 認証ユーティリティ
-    ├── jwt.ts          # JWT 処理（サーバー）
     ├── jwt-client.ts   # JWT 処理（クライアント）
     └── useAuth.ts      # 認証カスタムフック
-e2e/
+apps/frontend/e2e/
 ├── home.spec.ts        # ホームページの E2E テスト
 ├── counter.spec.ts     # カウンターの E2E テスト
 ├── posts.spec.ts       # 投稿ページの E2E テスト

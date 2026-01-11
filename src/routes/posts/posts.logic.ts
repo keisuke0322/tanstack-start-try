@@ -1,5 +1,16 @@
 import { queryOptions } from "@tanstack/react-query";
-import { API_BASE_URL, type Post, type User } from "../../types/api";
+import { type Post, type User } from "@tanstack-start-try/types";
+
+// Helper: resolve API URL depending on runtime (client vs server)
+function apiUrl(path: string) {
+  if (typeof window === "undefined") {
+    // SSR/runtime: use API_ORIGIN env if provided, otherwise default to localhost:3001
+    const origin = process.env.API_ORIGIN ?? "http://localhost:3001";
+    return `${origin}${path}`;
+  }
+  // client: use relative path so Vite proxy can handle it
+  return path;
+}
 
 // ==========================================
 // 📚 投稿リスト操作の純粋関数
@@ -32,11 +43,11 @@ export type LoadPostsResult = {
 export const postsQueryOptions = queryOptions({
   queryKey: ["posts"],
   queryFn: async () => {
-    const response = await fetch(`${API_BASE_URL}/posts`);
-    if (!response.ok) {
-      throw new Error("投稿の取得に失敗しました");
-    }
-    return response.json() as Promise<Post[]>;
+    // APIサーバーから投稿データを取得
+    const res = await fetch(apiUrl("/api/posts"));
+    if (!res.ok) throw new Error("投稿データの取得に失敗しました");
+    const posts = (await res.json()) as Post[];
+    return posts;
   },
   staleTime: 1000 * 60 * 5, // 5分
 });
@@ -48,11 +59,11 @@ export const postQueryOptions = (postId: number) =>
   queryOptions({
     queryKey: ["posts", postId],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/posts/${postId}`);
-      if (!response.ok) {
-        throw new Error("投稿の取得に失敗しました");
-      }
-      return response.json() as Promise<Post>;
+      // APIサーバーから個別投稿を取得
+      const res = await fetch(apiUrl(`/api/posts/${postId}`));
+      if (!res.ok) throw new Error("投稿が見つかりません");
+      const post = (await res.json()) as Post;
+      return post;
     },
     staleTime: 1000 * 60 * 5, // 5分
   });
@@ -64,11 +75,11 @@ export const userQueryOptions = (userId: number) =>
   queryOptions({
     queryKey: ["users", userId],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/users/${userId}`);
-      if (!response.ok) {
-        throw new Error("ユーザーの取得に失敗しました");
-      }
-      return response.json() as Promise<User>;
+      // APIからユーザー情報を取得
+      const res = await fetch(apiUrl(`/api/users/${userId}`));
+      if (!res.ok) throw new Error("ユーザーが見つかりません");
+      const user = (await res.json()) as User;
+      return user;
     },
     staleTime: 1000 * 60 * 10, // 10分（ユーザー情報は変わりにくい）
   });

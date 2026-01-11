@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Post } from "../../types/api";
+import { type Post } from "@tanstack-start-try/types";
 import {
   DEFAULT_PAGE_SIZE,
   filterPosts,

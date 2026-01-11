@@ -8,12 +8,11 @@ import { nitro } from "nitro/vite";
 const isVercelBuild = process.env.VERCEL === "1";
 
 export default defineConfig({
+  root: __dirname,
   plugins: [
     tailwindcss(),
     tanstackStart(),
-    // Vercelビルド時のみnitroプラグインを有効化
     ...(isVercelBuild ? [nitro({ preset: "vercel" })] : []),
-    // react's vite plugin must come after start's vite plugin
     react(),
   ],
   resolve: {
@@ -22,7 +21,6 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // ローカル開発時に/apiへのリクエストをHono APIサーバーに転送
       "/api": {
         target: "http://localhost:3001",
         changeOrigin: true,

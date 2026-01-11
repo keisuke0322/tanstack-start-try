@@ -158,23 +158,6 @@ describe("auth logic", () => {
       });
     });
   });
-
-  describe("User type", () => {
-    it("should have correct structure", () => {
-      const user = {
-        id: "1",
-        name: "テストユーザー",
-        email: "test@example.com",
-      };
-
-      expect(user).toHaveProperty("id");
-      expect(user).toHaveProperty("name");
-      expect(user).toHaveProperty("email");
-      expect(typeof user.id).toBe("string");
-      expect(typeof user.name).toBe("string");
-      expect(typeof user.email).toBe("string");
-    });
-  });
 });
 
 describe("JWT integration with auth", () => {

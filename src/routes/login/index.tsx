@@ -119,9 +119,7 @@ function LoginPage() {
         {/* Search Params表示 */}
         <div className="mt-4 rounded-lg border border-dashed border-indigo-300 bg-indigo-50 p-4">
           <p className="text-sm font-medium text-indigo-700">📍 Search Params:</p>
-          <code className="text-sm text-indigo-600">
-            {JSON.stringify({ redirect: redirectTo }, null, 2)}
-          </code>
+          <code className="text-sm text-indigo-600">{JSON.stringify({ redirect: redirectTo }, null, 2)}</code>
           <p className="mt-2 text-xs text-indigo-500">
             ログイン後、この URL にリダイレクトされます
           </p>
